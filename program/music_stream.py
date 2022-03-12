@@ -42,21 +42,24 @@ from driver.decorators import require_admin, check_blacklist
 
 from config import BOT_USERNAME, IMG_1, IMG_2, IMG_5
 from asyncio.exceptions import TimeoutError
-from youtubesearchpython import VideosSearch
+from youtubesearchpython.__future__ import VideosSearch
 
 
 def ytsearch(query: str):
     try:
-        search = VideosSearch(query, limit=1).result()
-        data = search["result"][0]
-        songname = data["title"]
-        url = data["link"]
-        duration = data["duration"]
-        thumbnail = data["thumbnails"][0]["url"]
-        return [songname, url, duration, thumbnail]
+        search = VideosSearch(query, limit=1)
+        for result in (await search.next())["result"]:
+            data = result["result"][0]
+            songname = data["title"]
+            url = data["link"]
+            duration = data["duration"]
+            thumbnail = data["thumbnails"][0]["url"]
+            video_id = data["id"]
+            return [songname, url, duration, thumbnail, video_id]
     except Exception as e:
         print(e)
         return 0
+
 
 async def ytdl(link: str):
     stdout, stderr = await bash(
@@ -65,6 +68,7 @@ async def ytdl(link: str):
     if stdout:
         return 1, stdout
     return 0, stderr
+
 
 def convert_seconds(seconds):
     seconds = seconds % (24 * 3600)
