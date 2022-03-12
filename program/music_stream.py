@@ -45,7 +45,7 @@ from asyncio.exceptions import TimeoutError
 from youtubesearchpython.__future__ import VideosSearch
 
 
-def ytsearch(query: str):
+async def ytsearch(query: str):
     try:
         search = VideosSearch(query, limit=1)
         for result in (await search.next())["result"]:
@@ -247,7 +247,7 @@ async def audio_stream(c: Client, m: Message):
             else:
                 suhu = await c.send_message(chat_id, "🔍 **Loading...**")
                 query = m.text.split(None, 1)[1]
-                search = ytsearch(query)
+                search = await ytsearch(query)
                 if search == 0:
                     await suhu.edit("❌ **no results found**")
                 else:
@@ -324,7 +324,7 @@ async def audio_stream(c: Client, m: Message):
         else:
             suhu = await c.send_message(chat_id, "🔍 **Loading...**")
             query = m.text.split(None, 1)[1]
-            search = ytsearch(query)
+            search = await ytsearch(query)
             if search == 0:
                 await suhu.edit("❌ **no results found**")
             else:
@@ -493,7 +493,7 @@ async def live_music_stream(c: Client, m: Message):
                         await remove_active_chat(chat_id)
                         await m.reply_text("❌ The content you provide to play has no audio source")
             else:
-                search = ytsearch(url)
+                search = await ytsearch(url)
                 title = search[0]
                 songname = search[0]
                 thumbnail = search[3]
